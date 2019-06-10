@@ -47,12 +47,12 @@ func main() {
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
 }
-func setURL() string {
-	return os.Getenv("HOST") + ":" + os.Getenv("PORT") + os.Getenv("URI")
+func setURL(tail string) string {
+	return fmt.Sprintf("%s:%s%s%s", os.Getenv("HOST"), os.Getenv("PORT"), os.Getenv("URI"), tail)
 }
 
 func callDefault(c echo.Context) error {
-	url := setURL()
+	url := setURL(c.Request().URL.Path)
 
 	client := &http.Client{
 		Transport: &http.Transport{
