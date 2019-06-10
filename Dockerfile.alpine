@@ -1,0 +1,18 @@
+# build stage
+FROM golang:1.11.9 AS build-env
+WORKDIR /go/src/service
+COPY . .
+
+EXPOSE 1323
+ENV GO111MODULE=on
+RUN go mod init main
+RUN GOOS=linux GOARCH=386 go build -o goapp
+
+# final stage
+FROM alpine
+WORKDIR /app
+COPY --from=build-env /go/src/service/goapp /app
+COPY config.yaml .
+RUN ls -l .
+RUN pwd
+ENTRYPOINT ./goapp
