@@ -59,7 +59,7 @@ func callDefault(c echo.Context) error {
 			DisableKeepAlives: true,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		},
-		Timeout: time.Second * 5,
+		// Timeout: time.Second * 5,
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
