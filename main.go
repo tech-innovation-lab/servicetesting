@@ -60,7 +60,6 @@ func setURL(tail string) string {
 
 func callDefault(c echo.Context) error {
 	url := setURL(c.Request().URL.Path)
-	fmt.Println("x:", c.Request().RequestURI)
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -70,7 +69,7 @@ func callDefault(c echo.Context) error {
 		// Timeout: time.Second * 5,
 	}
 
-	fmt.Println("request to:", url)
+	// fmt.Println("request to:", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Printf("The HTTP custom new request failed with error %s\n", err)
@@ -79,20 +78,33 @@ func callDefault(c echo.Context) error {
 		})
 	}
 
-	req.Header.Set(echo.HeaderXRequestID, c.Request().Header.Get(echo.HeaderXRequestID)) // Set Header by key of echo ReqID
+	req.Header.Set(echo.HeaderXRequestID, c.Response().Header().Get(echo.HeaderXRequestID)) // Set Header by key of echo ReqID
 
-	respones, err := client.Do(req)
+	response, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 		})
 	}
-	defer respones.Body.Close()
+	defer response.Body.Close()
 	go cal()
 	cal()
 
-	return c.JSON(respones.StatusCode, nil)
+	// b, err := httputil.DumpRequest(req, true)
+	// if err != nil {
+	// 	log.Println(err)
+	// } else {
+	// 	fmt.Println("request:", string(b))
+	// }
+	// b, err = httputil.DumpResponse(response, true)
+	// if err != nil {
+	// 	log.Println(err)
+	// } else {
+	// 	fmt.Println("response:", string(b))
+	// }
+
+	return c.JSON(response.StatusCode, nil)
 }
 
 func cal() {
