@@ -48,11 +48,19 @@ func main() {
 	e.Logger.Fatal(e.Start(":1323"))
 }
 func setURL(tail string) string {
-	return fmt.Sprintf("%s:%s%s%s", os.Getenv("HOST"), os.Getenv("PORT"), os.Getenv("URI"), tail)
+	if tail == "/" {
+		tail = ""
+	}
+	delim := ":"
+	if os.Getenv("PORT") == "" {
+		delim = ""
+	}
+	return fmt.Sprintf("%s%s%s%s%s", os.Getenv("HOST"), delim, os.Getenv("PORT"), os.Getenv("URI"), tail)
 }
 
 func callDefault(c echo.Context) error {
 	url := setURL(c.Request().URL.Path)
+	fmt.Println("x:", c.Request().RequestURI)
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -61,6 +69,8 @@ func callDefault(c echo.Context) error {
 		},
 		// Timeout: time.Second * 5,
 	}
+
+	fmt.Println("request to:", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Printf("The HTTP custom new request failed with error %s\n", err)
